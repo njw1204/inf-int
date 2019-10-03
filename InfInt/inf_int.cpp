@@ -364,7 +364,7 @@ ostream& operator<<(ostream& out, const inf_int& a) {
     return out;
 }
 
-istream& operator>>(std::istream& in, inf_int& a) {
+istream& operator>>(istream& in, inf_int& a) {
     string input;
     in >> input;
     a = input.c_str();
