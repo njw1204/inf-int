@@ -157,7 +157,7 @@ inf_int& inf_int::operator=(const inf_int& copy) {
 
 bool operator==(const inf_int& a, const inf_int& b) {
     // 부호가 일치하고 절댓값도 일치해야함
-    return (strcmp(a.digits, b.digits) == 0) && (a.thesign == b.thesign);
+    return (a.thesign == b.thesign) && (a.compareAbsoluteDigits(b) == 0);
 }
 
 bool operator!=(const inf_int& a, const inf_int& b) {
