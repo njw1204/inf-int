@@ -49,7 +49,8 @@ int main() {
     cout << "S = " << s << endl;
     cout << "T = " << t << endl;
     cout << "U = " << u << endl;
-    cout << "V = " << v << endl << endl;
+    cout << "V = " << v << endl;
+    cout << "W = " << 1234567890 * inf_int(1234567890) - 1234567892 * inf_int(1234567890) + 1234567890 << endl << endl;
 
     cout << "[Custom Input Test]" << endl;
     cout << "Input A, B : ";
