@@ -53,8 +53,10 @@ int main() {
     cout << "W = " << 1234567890 * inf_int(1234567890) - 1234567892 * inf_int(1234567890) + 1234567890 << endl << endl;
 
     cout << "[Custom Input Test]" << endl;
-    cout << "Input A, B : ";
-    cin >> a >> b;
+    cout << "Enter Number of A : ";
+    cin >> a;
+    cout << "Enter Number of B : ";
+    cin >> b;
 
     cout << endl;
     cout << "A = " << a << endl;
