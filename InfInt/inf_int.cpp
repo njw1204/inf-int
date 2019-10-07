@@ -1,5 +1,4 @@
 // 20181401 나종우
-
 #define _CRT_SECURE_NO_WARNINGS
 #include "inf_int.h"
 #include <iostream>
@@ -79,6 +78,7 @@ inf_int::inf_int(const char* str) {
 }
 
 inf_int::inf_int(const inf_int& copy) {
+    // 깊은 복사
     this->digits = new char[copy.length + 1];
     this->length = copy.length;
     this->thesign = copy.thesign;
@@ -86,6 +86,7 @@ inf_int::inf_int(const inf_int& copy) {
 }
 
 inf_int::~inf_int() {
+    // 동적 할당 해제
     delete[] this->digits;
 }
 
@@ -95,6 +96,7 @@ bool inf_int::resize(int size) {
         return false;
     }
 
+    // 새롭게 동적할당하고 기존의 데이터를 복사해옴
     char* newDigits = new char[size];
     strcpy(newDigits, this->digits);
     delete[] this->digits;
@@ -128,8 +130,11 @@ bool inf_int::isZero() const {
 // 저장된 값에 10을 mulCount번 곱한다.
 void inf_int::mul10(int mulCount) {
     if (!this->isZero()) {
+        // '0'을 넣을 메모리 공간 마련
         this->resize(this->length + mulCount + 1);
         memmove(this->digits + mulCount, this->digits, this->length);
+
+        // 10을 곱하는 횟수만큼 '0'을 붙이면 됨
         for (int i = 0; i < mulCount; i++) {
             this->digits[i] = '0';
         }
@@ -193,6 +198,7 @@ bool operator<(const inf_int& a, const inf_int& b) {
 inf_int operator+(const inf_int& a, const inf_int& b) {
     inf_int left = a, right = b;
 
+    // 좌항이 우항보다 절댓값이 작다면 서로 바꿈 (좌항의 절댓값이 더 크게 만들어야 덧셈이 쉽다)
     if (left.compareAbsoluteDigits(right) < 0) {
         inf_int temp = left;
         left = right;
@@ -203,15 +209,18 @@ inf_int operator+(const inf_int& a, const inf_int& b) {
         return left;
     }
 
+    // 좌항과 우항의 부호가 같을때 실제로 덧셈 처리를 시행한다.
     if (left.thesign == right.thesign) {
-        int carry = 0;
+        int carry = 0; // 올림값
 
         for (int i = 0; i < left.length; i++) {
+            // 한자리씩 숫자끼리 더한다.
             int sum = left.digits[i] - '0' + carry;
             if (i < right.length) {
                 sum += right.digits[i] - '0';
             }
 
+            // 숫자끼리 더한게 10을 넘어가면 윗 자리로 하나 올려준다. (올림값 전달)
             if (sum >= 10) {
                 sum -= 10;
                 carry = 1;
@@ -219,6 +228,8 @@ inf_int operator+(const inf_int& a, const inf_int& b) {
             else {
                 carry = 0;
             }
+
+            // 현재 자리의 연산 결과를 저장한다.
             left.digits[i] = sum + '0';
         }
 
@@ -230,6 +241,7 @@ inf_int operator+(const inf_int& a, const inf_int& b) {
             left.digits[left.length] = '\0';
         }
 
+        // 만약 연산결과가 0이라면 무조건 플러스 부호 처리를 한다.
         if (left.isZero()) {
             left.thesign = true;
         }
@@ -262,17 +274,24 @@ inf_int operator-(const inf_int& a, const inf_int& b) {
         return right - left;
     }
 
+    // 좌항과 우항이 모두 양수일 때 아래의 과정들이 시행된다.
+    // 그 이외의 경우들은 위에서 모두 처리되었다.
+
+    // 좌항과 우항 절댓값 비교 (좌항의 절댓값이 더 크게 만들어야 뺄셈이 쉽다)
     int absCmp = left.compareAbsoluteDigits(right);
     if (absCmp < 0) {
+        // 좌항의 절댓값이 더 작은 경우
+        // 좌항과 우항을 서로 바꾼다.
+        // 최종 뺄셈 결과는 음수가 될 것이므로 부호 플래그를 false로 설정한다.
+        // 뒤에 있을 뺄셈 연산 과정이 절댓값 기준으로 이루어지므로 이렇게 하면 맞는 결과가 나온다.
         inf_int temp = left;
         left = right;
         right = temp;
         left.thesign = false;
     }
-    else if (absCmp > 0) {
-        left.thesign = true;
-    }
-    else {
+    else if (absCmp == 0) {
+        // 절댓값이 같은 경우
+        // 앞에서 좌항과 우항이 모두 양수인 것은 알았으므로 뺄셈 결과는 0이 된다.
         return inf_int(0);
     }
 
@@ -280,13 +299,16 @@ inf_int operator-(const inf_int& a, const inf_int& b) {
         return left;
     }
 
-    int carry = 0;
+    int carry = 0; // 내림값
+
     for (int i = 0; i < left.length; i++) {
+        // 한자리씩 숫자끼리 뺀다.
         int sum = left.digits[i] - '0' + carry;
         if (i < right.length) {
             sum -= right.digits[i] - '0';
         }
 
+        // 숫자끼리 뺀게 음수이면 윗 자리에서 하나 가져온다. (내림값 전달)
         if (sum < 0) {
             sum += 10;
             carry = -1;
@@ -294,11 +316,13 @@ inf_int operator-(const inf_int& a, const inf_int& b) {
         else {
             carry = 0;
         }
+
+        // 현재 자리의 연산 결과를 저장한다.
         left.digits[i] = sum + '0';
     }
 
     // 뺄셈 결과에는 쓸모없는 0이 맨 앞에 붙어있을 수도 있다.
-    // 아래 코드로 leading zero를 제거한다.
+    // 아래 코드로 leading zero를 제거한다. (단, 연산 결과가 0일수도 있으니 일의 자리의 0은 제거하지 않음)
     for (int i = left.length - 1; i >= 1; i--) {
         if (left.digits[i] == '0') {
             left.digits[i] = '\0';
@@ -309,6 +333,7 @@ inf_int operator-(const inf_int& a, const inf_int& b) {
         }
     }
 
+    // 만약 연산결과가 0이라면 무조건 플러스 부호 처리를 한다.
     if (left.isZero()) {
         left.thesign = true;
     }
@@ -319,24 +344,30 @@ inf_int operator-(const inf_int& a, const inf_int& b) {
 inf_int operator*(const inf_int& a, const inf_int& b) {
     inf_int left = a, right = b;
 
+    // 하나라도 0이면 곱하면 0이다.
     if (left.isZero() || right.isZero()) {
         return inf_int(0);
     }
 
-    bool signFlag = true;
+    // 부호가 같으면 곱셈 결과는 플러스, 다르면 곱셈 결과는 마이너스
+    bool signFlag = true; // 부호 플래그
     if (left.thesign != right.thesign) {
         signFlag = false;
     }
+
+    // 곱셈 결과의 부호를 판별했으면 좌항과 우항을 모두 양수로 가정하고 곱셈을 진행한다.
     left.thesign = true;
     right.thesign = true;
 
+    // 좌항을 1번~9번 곱했을 때의 값을 미리 저장해둔다. (곱셈 연산 과정에서 활용)
     inf_int leftMultipliedBy[10];
     for (int i = 1; i < 10; i++) {
         leftMultipliedBy[i] = leftMultipliedBy[i - 1] + left;
     }
 
-    inf_int result;
+    inf_int result; // 최종 곱셈 결과를 저장하는 객체
     for (int i = 0; i < right.length; i++) {
+        // 필산 하는 방식을 따라서 한자리씩 곱한다.
         if (right.digits[i] == '0') {
             continue;
         }
@@ -346,6 +377,7 @@ inf_int operator*(const inf_int& a, const inf_int& b) {
         result = result + temp;
     }
 
+    // 곱셈 결과의 부호는 이전에 구했던 부호 플래그
     result.thesign = signFlag;
     return result;
 }
@@ -354,11 +386,9 @@ ostream& operator<<(ostream& out, const inf_int& a) {
     if (a.thesign == false) {
         out << '-';
     }
-
     for (int i = a.length - 1; i >= 0; i--) {
         out << a.digits[i];
     }
-
     return out;
 }
 

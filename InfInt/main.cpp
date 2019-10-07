@@ -26,7 +26,6 @@ int main() {
     inf_int u = inf_int(10) - inf_int(1234567900);
     inf_int v = inf_int(10) * inf_int(-123456789);
 
-
     cout << "[Constructor & Calculation Test. Every number must be -1234567890]" << endl;
     cout << "A = " << a << endl;
     cout << "B = " << b << endl;
