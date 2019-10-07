@@ -4,9 +4,7 @@
 #include "inf_int.h"
 #include <iostream>
 #include <string>
-#include <algorithm>
 #include <cstring>
-#include <cstdlib>
 using namespace std;
 
 inf_int::inf_int() {
